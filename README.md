@@ -409,6 +409,93 @@ DeviceLogonEvents
 
 **Flag:** `bitsadmin.exe`
 
+```
+DeviceProcessEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName in~ (
+    "certutil.exe", "bitsadmin.exe", "powershell.exe", 
+    "mshta.exe", "wscript.exe", "cscript.exe", 
+    "curl.exe", "wget.exe", "regsvr32.exe", "rundll32.exe"
+)
+| where ProcessCommandLine has_any ("http", "ftp", "download", "urlcache", "transfer")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, AccountName
+| order by TimeGenerated asc
+```
+<img width="780" height="95" alt="image" src="https://github.com/user-attachments/assets/4e38acfa-5d82-4357-908b-d324cd486547" /> <br>
 
+**Objective:** After the first tool failed, another method was used.
+
+**Flag:** `Invoke-WebRequest`
+
+```
+DeviceEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where ActionType == "PowerShellCommand"
+| project TimeGenerated, DeviceName, AdditionalFields, AccountName
+| order by TimeGenerated asc
+```
+<img width="1456" height="112" alt="image" src="https://github.com/user-attachments/assets/e09ec3ab-0b8e-40c3-a7ac-80d3792207fc" />
+
+---
+
+***SECTION 10: EXFILTRATION***
+
+**Objective:** A tool was used to compress data for exfiltration.
+
+**Flag:** `st.exe`
+
+```
+DeviceProcessEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where AccountName != "system"
+| where ProcessCommandLine has_any ("compress", ".zip", ".rar", ".7z", ".tar", "makecab", ".exe")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, AccountName
+| order by TimeGenerated asc
+```
+<img width="766" height="75" alt="image" src="https://github.com/user-attachments/assets/f253bb0a-2c5b-499a-ad02-434a7d2e2099" /> <br>
+
+**Objective:** Identify the hash of the staging tool.
+
+**Flag:** `512a1f4ed9f512572608c729a2b89f44ea66a40433073aedcd914bd2d33b7015`
+
+```
+DeviceProcessEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where AccountName != "system"
+| where ProcessCommandLine has_any ("compress", ".zip", ".rar", ".7z", ".tar", "makecab", ".exe")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, SHA256
+| order by TimeGenerated asc
+```
+<img width="1162" height="86" alt="image" src="https://github.com/user-attachments/assets/498064cf-8577-49b2-96aa-3655da43e593" /> <br?
+
+**Objective:** Identify the archive created for exfiltration.
+
+**Flag:** `exfil_data.zip`
+
+```
+DeviceFileEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName has_any (".zip", ".rar", ".7z", ".tar", ".gz", ".cab")
+| where ActionType == "FileCreated"
+| where InitiatingProcessFileName == "st.exe"
+| project TimeGenerated, DeviceName, FileName, FolderPath, InitiatingProcessFileName, InitiatingProcessAccountName
+| order by TimeGenerated asc
+```
+<img width="1122" height="88" alt="image" src="https://github.com/user-attachments/assets/936ea6d7-70aa-4e5c-a9d0-e488cd6a0099" />
+
+---
+
+***SECTION 11: RANSOMWARE DEPLOYMENT***
+
+**Objective:** The ransomware was disguised as a legitimate process.  
+
+**Flag:** `updater.exe`
+
+```
 
 
