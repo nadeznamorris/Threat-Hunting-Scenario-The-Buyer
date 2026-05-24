@@ -486,7 +486,7 @@ DeviceFileEvents
 | project TimeGenerated, DeviceName, FileName, FolderPath, InitiatingProcessFileName, InitiatingProcessAccountName
 | order by TimeGenerated asc
 ```
-<img width="1122" height="88" alt="image" src="https://github.com/user-attachments/assets/936ea6d7-70aa-4e5c-a9d0-e488cd6a0099" />
+<img width="952" height="78" alt="image" src="https://github.com/user-attachments/assets/936ea6d7-70aa-4e5c-a9d0-e488cd6a0099" />
 
 ---
 
@@ -497,5 +497,30 @@ DeviceFileEvents
 **Flag:** `updater.exe`
 
 ```
+DeviceProcessEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName endswith ".exe"
+| where AccountName != "system"
+| project TimeGenerated, DeviceName, FileName, FolderPath, ProcessCommandLine, AccountName
+| order by TimeGenerated asc
+```
+<img width="955" height="75" alt="image" src="https://github.com/user-attachments/assets/426fbd60-2057-4f3d-b266-916744c5e6ab" /> <br>
+
+**Objective:** Identify the hash of the ransomware.
+
+**Flag:** `e609d070ee9f76934d73353be4ef7ff34b3ecc3a2d1e5d052140ed4cb9e4752b`
+
+```
+DeviceProcessEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName endswith ".exe"
+| where AccountName != "system"
+| project TimeGenerated, DeviceName, FileName, FolderPath, ProcessCommandLine, SHA256 
+| order by TimeGenerated asc
+```
+<img width="1378" height="91" alt="image" src="https://github.com/user-attachments/assets/fbae44ad-4b35-4a56-9c9d-c7e4643164b0" />
+
 
 
