@@ -382,7 +382,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, AccountName, ProcessCommandLine
 | order by TimeGenerated desc
 ```
-<img width="747" height="110" alt="image" src="https://github.com/user-attachments/assets/acf7966f-4fc6-423d-a9ce-4a794ba74865" />
+<img width="750" height="95" alt="image" src="https://github.com/user-attachments/assets/acf7966f-4fc6-423d-a9ce-4a794ba74865" />
 
 ---
 
@@ -399,7 +399,7 @@ DeviceLogonEvents
 | project TimeGenerated, DeviceName, AccountName, AccountDomain, LogonType
 | order by TimeGenerated asc
 ```
-<img width="782" height="85" alt="image" src="https://github.com/user-attachments/assets/0e5d4a61-9e91-4c1d-9a42-96ef76438918" />
+<img width="720" height="80" alt="image" src="https://github.com/user-attachments/assets/0e5d4a61-9e91-4c1d-9a42-96ef76438918" />
 
 ---
 
@@ -520,7 +520,107 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, FolderPath, ProcessCommandLine, SHA256 
 | order by TimeGenerated asc
 ```
-<img width="1378" height="91" alt="image" src="https://github.com/user-attachments/assets/fbae44ad-4b35-4a56-9c9d-c7e4643164b0" />
+<img width="1261" height="87" alt="image" src="https://github.com/user-attachments/assets/32647486-2f9e-49dc-9dae-373870ea5360" /> <br>
+
+**Objective:** The ransomware was dropped onto AS-SRV before execution.
+
+**Flag:** `powershell.exe`
+
+```
+DeviceFileEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName =~ "updater.exe"
+| where ActionType == "FileCreated"
+| project TimeGenerated, DeviceName, FileName, FolderPath, InitiatingProcessFileName, InitiatingProcessCommandLine
+| order by TimeGenerated asc
+```
+<img width="950" height="74" alt="image" src="https://github.com/user-attachments/assets/8e582c4a-0e08-4110-8e21-ef0b2f8d49cc" /> <br>
+
+**Objective:** The attacker deleted backup copies to prevent file recovery.
+
+**Flag:** `vssadmin delete shadows /all /quiet`
+
+```
+DeviceProcessEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where ProcessCommandLine has_any (
+    "vssadmin", "wbadmin", "bcdedit", 
+    "shadowcopy", "delete shadows", "resize shadowstorage"
+)
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, AccountName
+| order by TimeGenerated asc
+```
+<img width="867" height="92" alt="image" src="https://github.com/user-attachments/assets/aa279904-e239-4e5f-9156-f971f945f020" /> <br>
+
+**Objective:** A ransom note was dropped after encryption began.
+
+**Flag:** `updater.exe`
+
+```
+DeviceFileEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName has_any ("readme", "ransom", "decrypt", "restore", "how_to", "recovery", "note")
+| where ActionType == "FileCreated"
+| project TimeGenerated, DeviceName, FileName, FolderPath, InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessAccountName
+| order by TimeGenerated asc
+```
+<img width="1315" height="106" alt="image" src="https://github.com/user-attachments/assets/dfd93884-5e20-4566-abb4-b598f1d6ca87" /> <br>
+
+**Objective:** Determine when encryption began.
+
+**Flag:** `22:18:33`
+
+```
+DeviceFileEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName has_any ("readme", "ransom", "decrypt", "restore", "how_to", "recovery", "note")
+| where ActionType == "FileCreated"
+| project TimeGenerated, DeviceName, FileName, FolderPath, InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessAccountName
+| order by TimeGenerated asc
+```
+<img width="1277" height="143" alt="image" src="https://github.com/user-attachments/assets/b246b7f5-7e18-4535-9d1e-93f9b6711b86" />
+
+---
+
+***SECTION 12: ANTI-FORENSICS & SCOPE***
+
+**Objective:** The ransomware binary was deleted after execution.
+
+**Flag:** `clean.bat`
+
+```
+DeviceFileEvents
+| where DeviceName == "as-srv"
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where FileName =~ "updater.exe"
+| where ActionType == "FileDeleted"
+| project TimeGenerated, DeviceName, FileName, FolderPath, InitiatingProcessCommandLine, InitiatingProcessAccountName
+| order by TimeGenerated asc
+```
+<img width="1165" height="83" alt="image" src="https://github.com/user-attachments/assets/dd4bc704-af43-4f6d-a8b6-3df5c8ec3fa4" /> <br>
+
+**Objective:** Determine the scope of the compromise.
+
+**Flag:** `as-srv, as-pc2`
+
+```
+DeviceFileEvents
+| where DeviceName has_any ("as-")
+| where TimeGenerated between (datetime(2026-01-27) .. datetime(2026-02-28))
+| where InitiatingProcessFileName =~ "updater.exe"
+| where ActionType == "FileCreated"
+| summarize by TimeGenerated, DeviceName
+```
+<img width="357" height="106" alt="image" src="https://github.com/user-attachments/assets/21d96ad0-ee2e-4f0f-b7c6-9f14f5bfec66" />
+
+---
+
+
+
 
 
 
