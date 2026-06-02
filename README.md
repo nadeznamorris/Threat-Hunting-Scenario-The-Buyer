@@ -17,6 +17,8 @@
 Following the initial compromise documented in ***The Broker***, a ransomware affiliate leveraged pre-staged persistent access to re-enter the Ashford Sterling environment and deploy Akira ransomware. The threat actor operated with clear deliberateness: access had been planted during the prior intrusion and was reactivated in this campaign.
 The attacker disabled security tooling, harvested credentials from LSASS, performed internal network reconnaissance, exfiltrated sensitive data, and ultimately encrypted files across two systems — AS-SRV and AS-PC2 — before dropping a ransom note and self-cleaning the environment. Encryption commenced at **22:18:33**. A ransom demand of **£65,000** was issued via a TOR-hosted Akira negotiation portal.
 
+---
+
 ## 1. Findings
 
 ### **Key Indicators of Compromise (IOCs):**
