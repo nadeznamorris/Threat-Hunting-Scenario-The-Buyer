@@ -651,3 +651,34 @@ DeviceFileEvents
 | Impact | T1486 — Data Encrypted for Impact | Akira ransomware; .akira extension | 
 | Exfiltration | T1567 — Exfiltration Over Web Service | Data exfiltrated prior to encryption |
 
+---
+
+## 4. Recommendations
+
+### Immediate Actions
+
+- Isolate AS-SRV and AS-PC2 from the network if not already done.
+- Reset credentials for david.mitchell, as.srv.administrator, and all domain admin accounts.
+- Block all IOC domains and IPs at the perimeter firewall and DNS layer.
+- Preserve all available forensic artefacts before any remediation activity.
+
+### Short-Term Remediation
+
+- Rebuild AS-SRV and AS-PC2 from clean, verified images — do not trust in-place recovery.
+- Audit all user accounts for signs of compromise or privilege escalation.
+- Review AnyDesk and any other remote access tools across the environment; remove any not explicitly authorised.
+- Audit C:\Users\Public\ and C:\ProgramData\ across all endpoints for unexpected executables.
+- Re-enable and verify Windows Defender across all hosts; validate registry integrity.
+- Re-establish Volume Shadow Copy services and verified backup integrity.
+
+### Longer-Term Hardening
+
+- Enforce application allowlisting to prevent execution of unsigned or unexpected binaries.
+- Implement privileged access workstations (PAWs) and tiered admin models to prevent credential reuse across workstations and servers.
+- Deploy a SIEM with alerting on LSASS access, shadow copy deletion, and registry modification to Defender keys.
+- Enforce MFA on all remote access pathways, including any residual remote management tooling.
+- Conduct a full review of the initial The Broker incident to identify and close all remaining persistence mechanisms beyond those documented here.
+- Engage legal counsel and consider ICO notification obligations given the confirmed exfiltration of employee PII and client data.
+
+---
+
