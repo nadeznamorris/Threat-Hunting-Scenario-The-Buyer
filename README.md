@@ -108,7 +108,7 @@ DeviceNetworkEvents
 | project TimeGenerated, DeviceName, InitiatingProcessFileName, RemoteUrl, RemoteIP, RemotePort
 | sort by TimeGenerated desc
 ```
-<img width="955" height="78" alt="image" src="https://github.com/user-attachments/assets/02f86e8e-8868-4c33-a6d7-75a4411a42b2" />
+<img width="955" height="68" alt="image" src="https://github.com/user-attachments/assets/02f86e8e-8868-4c33-a6d7-75a4411a42b2" />
 
 ---
 
@@ -127,7 +127,7 @@ DeviceFileEvents
 | project TimeGenerated, DeviceName, InitiatingProcessAccountName, FileName, FolderPath, InitiatingProcessCommandLine
 | order by TimeGenerated desc
 ```
-<img width="1130" height="87" alt="image" src="https://github.com/user-attachments/assets/03790339-3bf5-4025-89ae-128191b3fe44" /> <br>
+<img width="1130" height="80" alt="image" src="https://github.com/user-attachments/assets/03790339-3bf5-4025-89ae-128191b3fe44" /> <br>
 
 **Objective:** Identify the hash of the evasion script.
 
@@ -188,7 +188,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, AccountName, FileName, ProcessCommandLine
 | order by TimeGenerated asc
 ```
-<img width="768" height="83" alt="image" src="https://github.com/user-attachments/assets/d0fd6213-23d4-42b2-aa37-e9cc0697d149" /> <br>
+<img width="768" height="73" alt="image" src="https://github.com/user-attachments/assets/d0fd6213-23d4-42b2-aa37-e9cc0697d149" /> <br>
 
 **Objective:** A named pipe was accessed during credential theft activity.
 
@@ -203,7 +203,7 @@ DeviceEvents
 | project TimeGenerated, DeviceName, InitiatingProcessFileName, PipeName
 | sort by TimeGenerated asc
 ```
-<img width="643" height="116" alt="image" src="https://github.com/user-attachments/assets/b913959f-104d-4e25-9143-d10d8b3e4d74" /> <br>
+<img width="643" height="106" alt="image" src="https://github.com/user-attachments/assets/b913959f-104d-4e25-9143-d10d8b3e4d74" /> <br>
 
 ---
 
@@ -221,7 +221,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="790" height="82" alt="image" src="https://github.com/user-attachments/assets/9557eaf7-33a8-4f21-b223-ba5dbecb817f" /> <br>
+<img width="790" height="72" alt="image" src="https://github.com/user-attachments/assets/9557eaf7-33a8-4f21-b223-ba5dbecb817f" /> <br>
 
 **Objective:** The remote access tool was running from an unusual location on AS-PC2.
 
@@ -235,7 +235,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="817" height="81" alt="image" src="https://github.com/user-attachments/assets/3a51e0fe-8dae-4413-9786-5b6674e065f7" /> <br>
+<img width="817" height="71" alt="image" src="https://github.com/user-attachments/assets/3a51e0fe-8dae-4413-9786-5b6674e065f7" /> <br>
 
 **Objective:** Identify the attacker's external IP address.
 
@@ -250,7 +250,7 @@ DeviceNetworkEvents
 | project TimeGenerated, DeviceName, InitiatingProcessCommandLine, RemoteIP, RemotePort
 | sort by TimeGenerated asc
 ```
-<img width="757" height="83" alt="image" src="https://github.com/user-attachments/assets/082fbcfe-3d86-45ff-b08e-28498da31ff9" /> <br>
+<img width="757" height="73" alt="image" src="https://github.com/user-attachments/assets/082fbcfe-3d86-45ff-b08e-28498da31ff9" /> <br>
 
 **Objective:** Identify the user account that was compromised.
 
@@ -266,7 +266,7 @@ DeviceNetworkEvents
 | project TimeGenerated, DeviceName, InitiatingProcessAccountName, InitiatingProcessCommandLine, RemoteIP, RemotePort
 | sort by TimeGenerated asc
 ```
-<img width="900" height="85" alt="image" src="https://github.com/user-attachments/assets/d38af04c-86bf-4e1d-b4a8-c4ef93260962" />
+<img width="900" height="75" alt="image" src="https://github.com/user-attachments/assets/d38af04c-86bf-4e1d-b4a8-c4ef93260962" />
 
 ---
 
@@ -284,7 +284,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="772" height="91" alt="image" src="https://github.com/user-attachments/assets/908faeed-bccb-4fd8-900f-6576d5529214" /> <br>
+<img width="772" height="81" alt="image" src="https://github.com/user-attachments/assets/908faeed-bccb-4fd8-900f-6576d5529214" /> <br>
 
 **Objective:** Identify where the beacon was deployed.
 
@@ -298,7 +298,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, ProcessCommandLine, FolderPath
 | sort by TimeGenerated asc
 ```
-<img width="750" height="112" alt="Flag 20" src="https://github.com/user-attachments/assets/45b6f57a-0a63-4a53-a63c-838b9eedcb14" /> <br>
+<img width="750" height="102" alt="Flag 20" src="https://github.com/user-attachments/assets/45b6f57a-0a63-4a53-a63c-838b9eedcb14" /> <br>
 
 **Objective:** Identify the hash of the C2 beacon.  
 
@@ -312,7 +312,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, FileName, FolderPath, SHA256, ProcessCommandLine
 | order by TimeGenerated asc
 ```
-<img width="960" height="80" alt="image" src="https://github.com/user-attachments/assets/46dae70b-fc1d-4581-ac4e-27aba05e7026" /> <br>
+<img width="960" height="70" alt="image" src="https://github.com/user-attachments/assets/46dae70b-fc1d-4581-ac4e-27aba05e7026" /> <br>
 
 **Objective:** A new beacon was deployed to replace the failed one.
 
@@ -387,7 +387,7 @@ DeviceProcessEvents
 | project TimeGenerated, DeviceName, AccountName, ProcessCommandLine
 | order by TimeGenerated desc
 ```
-<img width="750" height="95" alt="image" src="https://github.com/user-attachments/assets/acf7966f-4fc6-423d-a9ce-4a794ba74865" />
+<img width="680" height="95" alt="image" src="https://github.com/user-attachments/assets/acf7966f-4fc6-423d-a9ce-4a794ba74865" />
 
 ---
 
@@ -404,7 +404,7 @@ DeviceLogonEvents
 | project TimeGenerated, DeviceName, AccountName, AccountDomain, LogonType
 | order by TimeGenerated asc
 ```
-<img width="720" height="80" alt="image" src="https://github.com/user-attachments/assets/0e5d4a61-9e91-4c1d-9a42-96ef76438918" />
+<img width="720" height="70" alt="image" src="https://github.com/user-attachments/assets/0e5d4a61-9e91-4c1d-9a42-96ef76438918" />
 
 ---
 
