@@ -12,6 +12,11 @@
 
 ---
 
+## Executive Summary
+
+Following the initial compromise documented in ***The Broker***, a ransomware affiliate leveraged pre-staged persistent access to re-enter the Ashford Sterling environment and deploy Akira ransomware. The threat actor operated with clear deliberateness: access had been planted during the prior intrusion and was reactivated in this campaign.
+The attacker disabled security tooling, harvested credentials from LSASS, performed internal network reconnaissance, exfiltrated sensitive data, and ultimately encrypted files across two systems — AS-SRV and AS-PC2 — before dropping a ransom note and self-cleaning the environment. Encryption commenced at **22:18:33**. A ransom demand of **£65,000** was issued via a TOR-hosted Akira negotiation portal.
+
 ## 1. Findings
 
 ### **Key Indicators of Compromise (IOCs):**
@@ -621,6 +626,28 @@ DeviceFileEvents
 
 ## 2. Investigation Summary — Ashford Sterling Recruitment
 
+---
+
+## 3. MITRE ATT&CK Mapping
 
 
+| Tactic          | Technique              | Evidence                            |
+| --------------- | ---------------------- | ----------------------------------- |
+| Initial Access  | T1078 — Valid Accounts    | david.mitchell account compromised |
+| Persistence     | T1547 — Pre-staged Access | AnyDesk.exe in C:\Users\Public\ |
+| Command & Control | T1219 — Remote Access Software | AnyDesk via relay-0b975d23.net.anydesk.com |
+| Command & Control | T1071 — Application Layer Protocol | C2 beacon via cdn.cloud-endpoint.net |
+| Defence Evasion | T1562.001 — Impair Defences: Disable or Modify Tools| kill.bat; DisableAntiSpyware registry key |
+| Defence Evasion | T1070 — Indicator Removal | clean.bat deletes ransomware binary post-execution | 
+| Credential Access | T1003.001 — OS Credential Dumping: LSASS Memory | LSASS named pipe access | 
+| Discovery | T1057 — Process Discovery | tasklist | findstr lsass | 
+| Discovery | T1135 — Network Share Discovery | scan.exe targeting 10.1.0.183, 10.1.0.154 | 
+| Lateral Movement | T1078 — Valid Accounts | as.srv.administrator used to access AS-SRV |
+| Resource Development | T1608 — Stage Capabilities | Tools staged from sync.cloud-endpoint.net |
+| Command & Control | T1197 — BITS Jobs (failed) | bitsadmin.exe attempted |
+| Execution | T1059.001 — PowerShell | Invoke-WebRequest; payload dropped via powershell.exe |
+| Collection / Exfiltration | T1560 — Archive Collected Data | st.exe creates exfil_data.zip |
+| Impact | T1490 — Inhibit System Recovery | vssadmin delete shadows /all /quiet | 
+| Impact | T1486 — Data Encrypted for Impact | Akira ransomware; .akira extension | 
+| Exfiltration | T1567 — Exfiltration Over Web Service | Data exfiltrated prior to encryption |
 
