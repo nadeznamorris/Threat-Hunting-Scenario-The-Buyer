@@ -21,12 +21,19 @@ The attacker disabled security tooling, harvested credentials from LSASS, perfor
 
 ### **Key Indicators of Compromise (IOCs):**
 
-- **Attack Source IP:** 
-- **Compromised Account:** 
-- **Malicious File:** 
-- **Persistence Mechanism:** 
-- **C2 Server:** 
-- **Exfiltration Destination:**
+| Indicator                                                      | Description                                         |
+| -------------------------------------------------------------- | --------------------------------------------------- |
+| 88.97.164.155                                                  | Attacker external IP address                        |
+| david.mitchell                                                 | Compromised domain user — primary attacker foothold |
+| as.srv.administrator                                           | Lateral movement account used to access AS-SRV      |
+| kill.bat                                                       | Security control termination script                 |
+| st.exe                                                         | Data staging / compression tool                     |
+| updater.exe                                                    | Akira ransomware binary (masqueraded)               |
+| sync.cloud-endpoint.net                                        | Tool download staging server                        |
+| cdn.cloud-endpoint.net                                         | C2 beacon communications                            |
+| relay-0b975d23.net.anydesk.com                                 | AnyDesk relay server                                |
+| akiral2iz6a7qgd3ayp3l6yub7xx2uep76idk3u2kollpj5z3z636bad.onion | Akira negotiation portal                            |
+| HKLM\SOFTWARE\Policies\Microsoft\Windows Defender              | Windows Defender disabled at 21:03:42               |
 
 ---
 
@@ -626,30 +633,57 @@ DeviceFileEvents
 
 ## 2. Investigation Summary — Ashford Sterling Recruitment
 
+**Phase 1 — Re-entry via Pre-Staged Access**  
+The threat actor did not need to re-compromise the environment. **AnyDesk.exe**, planted during ***The Broker*** intrusion, was residing in `C:\Users\Public\` on AS-PC2 — an unusual and suspicious path for a remote access tool. The compromised account **david.mitchell** provided the initial foothold, with connections originating from the attacker's external IP `88.97.164.155`.
+The pre-staged C2 beacon (`wsync.exe`) was initially reactivated but failed to maintain stable communications. The attacker promptly deployed a replacement beacon to `C:\ProgramData\` and re-established reliable C2 connectivity through `cdn.cloud-endpoint.net`, resolving to `104.21.30.237` and `172.67.174.46`. AnyDesk traffic was relayed through `relay-0b975d23.net.anydesk.com`.
+
+**Phase 2 — Defence Evasion**  
+Before any significant activity, the attacker moved to blind the environment's defences. At **21:03:42**, the Windows registry was modified — setting `DisableAntiSpyware` to disable Windows Defender. A batch script, **kill.bat**, was executed to terminate additional security processes and controls. With defensive tooling neutralised, the attacker had a clear runway for the remainder of the operation.
+
+**Phase 3 — Credential Harvesting**  
+The attacker enumerated running processes via `tasklist | findstr lsass` to locate the LSASS process, then accessed the named pipe `\Device\NamedPipe\lsass` to perform credential theft. Credentials harvested here — likely the **as.srv.administrator** account — enabled subsequent lateral movement to AS-SRV.
+
+**Phase 4 — Reconnaissance and Lateral Movement**  
+A portable network scanner, **scan.exe**, was executed from `C:/Users/david.mitchell/Downloads/` with the `/portable` and `/lng en_us` flags. The attacker targeted hosts `10.1.0.183` and `10.1.0.154`, enumerating available network shares. Using the **as.srv.administrator** account, the attacker successfully accessed AS-SRV, expanding their footprint to the server.
+
+**Phase 5 — Tool Staging and Payload Download**  
+With AS-SRV accessible, the attacker staged tools for the final phases. An initial attempt to download payloads using **bitsadmin.exe** (a living-off-the-land binary) encountered issues. The attacker pivoted to **Invoke-WebRequest** (PowerShell) as a fallback, successfully pulling tools from `sync.cloud-endpoint.net`.
+
+**Phase 6 — Data Exfiltration**  
+Prior to encryption, the attacker used **st.exe** to compress targeted data into an archive named **exfil_data.zip**. This archive was exfiltrated externally, providing the threat actor with the leverage required for their double-extortion model. Exfiltrated data reportedly included financial records, employee PII, client databases, contracts, internal communications, and proprietary business data.
+
+**Phase 7 — Ransomware Deployment and Execution**  
+The Akira ransomware binary was disguised as **updater.exe** and dropped onto AS-SRV via powershell.exe. Before triggering encryption, the attacker deleted all Volume Shadow Copies via:
+`vssadmin delete shadows /all /quiet`
+This command eliminated the primary native recovery mechanism. Encryption began at 22:18:33. The ransom note was written to disk by updater.exe. Following execution, the ransomware binary was deleted using clean.bat, removing the primary on-disk evidence of the payload.
+
+**Phase 8 — Negotiation**  
+Contact was made through the Akira TOR portal. The initial demand of £65,000 was met with a counter-offer of £11,000 from Ashford Sterling, citing their size as a small recruitment firm. Akira declined and issued a 48-hour deadline.
+
 ---
 
 ## 3. MITRE ATT&CK Mapping
 
 
-| Tactic          | Technique              | Evidence                            |
-| --------------- | ---------------------- | ----------------------------------- |
-| Initial Access  | T1078 — Valid Accounts    | david.mitchell account compromised |
-| Persistence     | T1547 — Pre-staged Access | AnyDesk.exe in C:\Users\Public\ |
-| Command & Control | T1219 — Remote Access Software | AnyDesk via relay-0b975d23.net.anydesk.com |
-| Command & Control | T1071 — Application Layer Protocol | C2 beacon via cdn.cloud-endpoint.net |
-| Defence Evasion | T1562.001 — Impair Defences: Disable or Modify Tools| kill.bat; DisableAntiSpyware registry key |
-| Defence Evasion | T1070 — Indicator Removal | clean.bat deletes ransomware binary post-execution | 
-| Credential Access | T1003.001 — OS Credential Dumping: LSASS Memory | LSASS named pipe access | 
-| Discovery | T1057 — Process Discovery | tasklist | findstr lsass | 
-| Discovery | T1135 — Network Share Discovery | scan.exe targeting 10.1.0.183, 10.1.0.154 | 
-| Lateral Movement | T1078 — Valid Accounts | as.srv.administrator used to access AS-SRV |
-| Resource Development | T1608 — Stage Capabilities | Tools staged from sync.cloud-endpoint.net |
-| Command & Control | T1197 — BITS Jobs (failed) | bitsadmin.exe attempted |
-| Execution | T1059.001 — PowerShell | Invoke-WebRequest; payload dropped via powershell.exe |
-| Collection / Exfiltration | T1560 — Archive Collected Data | st.exe creates exfil_data.zip |
-| Impact | T1490 — Inhibit System Recovery | vssadmin delete shadows /all /quiet | 
-| Impact | T1486 — Data Encrypted for Impact | Akira ransomware; .akira extension | 
-| Exfiltration | T1567 — Exfiltration Over Web Service | Data exfiltrated prior to encryption |
+| Tactic                    | Technique                                            | Evidence                                              |
+| ------------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| Initial Access            | T1078 — Valid Accounts                               | david.mitchell account compromised                    |
+| Persistence               | T1547 — Pre-staged Access                            | AnyDesk.exe in C:\Users\Public\                       |
+| Command & Control         | T1219 — Remote Access Software                       | AnyDesk via relay-0b975d23.net.anydesk.com            |
+| Command & Control         | T1071 — Application Layer Protocol                   | C2 beacon via cdn.cloud-endpoint.net                  |
+| Defence Evasion           | T1562.001 — Impair Defences: Disable or Modify Tools | kill.bat; DisableAntiSpyware registry key             |
+| Defence Evasion           | T1070 — Indicator Removal                            | clean.bat deletes ransomware binary post-execution    | 
+| Credential Access         | T1003.001 — OS Credential Dumping: LSASS Memory      | LSASS named pipe access                               | 
+| Discovery                 | T1057 — Process Discovery                            | tasklist | findstr lsass                              | 
+| Discovery                 | T1135 — Network Share Discovery                      | scan.exe targeting 10.1.0.183, 10.1.0.154             | 
+| Lateral Movement          | T1078 — Valid Accounts                               | as.srv.administrator used to access AS-SRV            |
+| Resource Development      | T1608 — Stage Capabilities                           | Tools staged from sync.cloud-endpoint.net             |
+| Command & Control         | T1197 — BITS Jobs (failed)                           | bitsadmin.exe attempted                               |
+| Execution                 | T1059.001 — PowerShell                               | Invoke-WebRequest; payload dropped via powershell.exe |
+| Collection / Exfiltration | T1560 — Archive Collected Data                       | st.exe creates exfil_data.zip                         |
+| Impact                    | T1490 — Inhibit System Recovery                      | vssadmin delete shadows /all /quiet                   | 
+| Impact                    | T1486 — Data Encrypted for Impact                    | Akira ransomware; .akira extension                    | 
+| Exfiltration              | T1567 — Exfiltration Over Web Service                | Data exfiltrated prior to encryption                  |
 
 ---
 
@@ -682,3 +716,8 @@ DeviceFileEvents
 
 ---
 
+**Report Status:** Complete  
+
+**Next Review:** 21 March 2026  
+
+**Distribution:** Cyber Range
