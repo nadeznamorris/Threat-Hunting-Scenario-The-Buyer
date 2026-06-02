@@ -29,13 +29,10 @@ The attacker disabled security tooling, harvested credentials from LSASS, perfor
 | david.mitchell                                                 | Compromised domain user — primary attacker foothold |
 | as.srv.administrator                                           | Lateral movement account used to access AS-SRV      |
 | kill.bat                                                       | Security control termination script                 |
-| st.exe                                                         | Data staging / compression tool                     |
 | updater.exe                                                    | Akira ransomware binary (masqueraded)               |
 | sync.cloud-endpoint.net                                        | Tool download staging server                        |
 | cdn.cloud-endpoint.net                                         | C2 beacon communications                            |
-| relay-0b975d23.net.anydesk.com                                 | AnyDesk relay server                                |
 | akiral2iz6a7qgd3ayp3l6yub7xx2uep76idk3u2kollpj5z3z636bad.onion | Akira negotiation portal                            |
-| HKLM\SOFTWARE\Policies\Microsoft\Windows Defender              | Windows Defender disabled at 21:03:42               |
 
 ---
 
@@ -635,6 +632,12 @@ DeviceFileEvents
 
 ## 2. Investigation Summary — Ashford Sterling Recruitment
 
+A ransomware affiliate re-entered the Ashford Sterling environment by reactivating access pre-staged during a prior intrusion, using a compromised user account (david.mitchell) and a planted AnyDesk remote access tool. The attacker disabled Windows Defender via registry modification, harvested credentials through LSASS access, and moved laterally to AS-SRV using administrative credentials obtained during that process. Sensitive company data was compressed and exfiltrated before the Akira ransomware binary — masquerading as a legitimate updater process — was deployed via PowerShell, shadow copies were deleted to eliminate recovery options, and encryption commenced at 22:18:33 across AS-SRV and AS-PC2. The attacker self-cleaned the environment post-encryption and issued a £65,000 ransom demand through a TOR-hosted Akira negotiation portal.
+
+---
+
+## 3. Attack Narrative
+
 **Phase 1 — Re-entry via Pre-Staged Access**  
 The threat actor did not need to re-compromise the environment. **AnyDesk.exe**, planted during ***The Broker*** intrusion, was residing in `C:\Users\Public\` on AS-PC2 — an unusual and suspicious path for a remote access tool. The compromised account **david.mitchell** provided the initial foothold, with connections originating from the attacker's external IP `88.97.164.155`.
 The pre-staged C2 beacon (`wsync.exe`) was initially reactivated but failed to maintain stable communications. The attacker promptly deployed a replacement beacon to `C:\ProgramData\` and re-established reliable C2 connectivity through `cdn.cloud-endpoint.net`, resolving to `104.21.30.237` and `172.67.174.46`. AnyDesk traffic was relayed through `relay-0b975d23.net.anydesk.com`.
@@ -664,7 +667,7 @@ Contact was made through the Akira TOR portal. The initial demand of £65,000 wa
 
 ---
 
-## 3. MITRE ATT&CK Mapping
+## 4. MITRE ATT&CK Mapping
 
 
 | Tactic                    | Technique                                            | Evidence                                              |
@@ -689,7 +692,7 @@ Contact was made through the Akira TOR portal. The initial demand of £65,000 wa
 
 ---
 
-## 4. Recommendations
+## 5. Recommendations
 
 ### Immediate Actions
 
