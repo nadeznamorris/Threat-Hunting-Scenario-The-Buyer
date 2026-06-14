@@ -1,4 +1,4 @@
-# Threat-Hunt-Scenario-The-Buyer
+# Threat-Hunting-Scenario-The-Buyer
 
 ## RDP Compromise Incident
 
